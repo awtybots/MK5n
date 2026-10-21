@@ -67,7 +67,9 @@ public class Robot extends TimedRobot {
     public void teleopPeriodic() {}
 
     @Override
-    public void teleopExit() {}
+    public void teleopExit() {
+        SignalLogger.stop();
+    }
 
     @Override
     public void testInit() {
