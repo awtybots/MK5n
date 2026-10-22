@@ -23,15 +23,20 @@ public class TunerConstants {
 
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
+    // kS/kV from SysId steer routine (2026-10-22, robot suspended, avg of 4 modules).
+    // kA could not be measured (step settles in ~30 ms, logged at 100 Hz), so it stays 0.
     private static final Slot0Configs steerGains = new Slot0Configs()
         .withKP(100).withKI(0).withKD(0.5)
-        .withKS(0.1).withKV(2.49).withKA(0)
+        .withKS(0.07).withKV(2.46).withKA(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
+    // kS/kV from SysId translation routine (2026-10-22, robot suspended, avg of 4 modules).
+    // Units are V per rotor rps. Re-run on carpet: kS will be higher on the ground,
+    // and kA must come from a ground run (unmeasurable in the air).
     private static final Slot0Configs driveGains = new Slot0Configs()
         .withKP(0.1).withKI(0).withKD(0)
-        .withKS(0).withKV(0.124);
+        .withKS(0.04).withKV(0.1145);
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
@@ -82,7 +87,9 @@ public class TunerConstants {
     // Measured robot speed (m/s) at 12 V applied output;
     // This is NOT the desired max robot speed - see MaxSpeed in RobotContainer instead;
     // This needs to be tuned to your individual robot
-    public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(5.12);
+    // 5.30 m/s is SDS's MK5n R2 free speed without FOC (motors are not Pro-licensed).
+    // The suspended SysId run implies 5.53 m/s, an upper bound since it has no carpet load.
+    public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(5.30);
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot
