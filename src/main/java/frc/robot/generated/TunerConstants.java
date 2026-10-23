@@ -23,24 +23,15 @@ public class TunerConstants {
 
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
-    // kV from SysId steer routine (2026-10-22, robot suspended, avg of 4 modules).
-    // The suspended run measured kS = 0.07, but carpet scrub raises it, so kS stays at the 0.1 default.
-    // If the modules ever buzz while holding still, set kS to 0 (FRC 2910 runs 0).
-    // kA could not be measured (step settles in ~30 ms, logged at 100 Hz), so it stays 0.
-    // Snapping while turning is expected. Lower kP (e.g. 80) only if the modules
-    // overshoot or oscillate with the wheels on carpet.
     private static final Slot0Configs steerGains = new Slot0Configs()
-        .withKP(100).withKI(0).withKD(0.5)
+        .withKP(80).withKI(0).withKD(0.25)
         .withKS(0.1).withKV(2.46).withKA(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
-    // kS/kV from SysId translation routine (2026-10-22, robot suspended, avg of 4 modules).
-    // Units are V per rotor rps. Re-run on carpet: kS will be higher on the ground,
-    // and kA must come from a ground run (unmeasurable in the air).
     private static final Slot0Configs driveGains = new Slot0Configs()
-        .withKP(0.1).withKI(0).withKD(0)
-        .withKS(0.04).withKV(0.1145);
+        .withKP(0.33).withKI(0).withKD(0)
+        .withKS(0.17).withKV(0.1145);
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
@@ -69,7 +60,6 @@ public class TunerConstants {
             new CurrentLimitsConfigs()
                 // Default supply current limit is 70 A, but it can be lowered to avoid brownouts.
                 // Supply current limits can be larger than the breaker current rating.
-                // 40 A matches FRC 2910 (40 A) and 7415 (37.5 A) on MK5n with Kraken X60s.
                 .withSupplyCurrentLimit(Amps.of(40))
                 .withSupplyCurrentLimitEnable(true)
         );
@@ -80,8 +70,6 @@ public class TunerConstants {
                 // stator current limit to help avoid brownouts without impacting performance.
                 .withStatorCurrentLimit(Amps.of(60))
                 .withStatorCurrentLimitEnable(true)
-                // Supply limit to soften battery dips when all four steer motors snap at once
-                // (same as FRC 7415's MK5n / Kraken X44 setup).
                 .withSupplyCurrentLimit(Amps.of(35))
                 .withSupplyCurrentLimitEnable(true)
         );
@@ -96,8 +84,6 @@ public class TunerConstants {
     // Measured robot speed (m/s) at 12 V applied output;
     // This is NOT the desired max robot speed - see MaxSpeed in RobotContainer instead;
     // This needs to be tuned to your individual robot
-    // 5.30 m/s is SDS's MK5n R2 free speed without FOC (motors are not Pro-licensed).
-    // The suspended SysId run implies 5.53 m/s, an upper bound since it has no carpet load.
     public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(5.30);
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
