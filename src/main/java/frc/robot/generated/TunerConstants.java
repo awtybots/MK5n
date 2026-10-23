@@ -23,11 +23,15 @@ public class TunerConstants {
 
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
-    // kS/kV from SysId steer routine (2026-10-22, robot suspended, avg of 4 modules).
+    // kV from SysId steer routine (2026-10-22, robot suspended, avg of 4 modules).
+    // The suspended run measured kS = 0.07, but carpet scrub raises it, so kS stays at the 0.1 default.
+    // If the modules ever buzz while holding still, set kS to 0 (FRC 2910 runs 0).
     // kA could not be measured (step settles in ~30 ms, logged at 100 Hz), so it stays 0.
+    // Snapping while turning is expected. Lower kP (e.g. 80) only if the modules
+    // overshoot or oscillate with the wheels on carpet.
     private static final Slot0Configs steerGains = new Slot0Configs()
         .withKP(100).withKI(0).withKD(0.5)
-        .withKS(0.07).withKV(2.46).withKA(0)
+        .withKS(0.1).withKV(2.46).withKA(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
@@ -65,7 +69,8 @@ public class TunerConstants {
             new CurrentLimitsConfigs()
                 // Default supply current limit is 70 A, but it can be lowered to avoid brownouts.
                 // Supply current limits can be larger than the breaker current rating.
-                .withSupplyCurrentLimit(Amps.of(70))
+                // 40 A matches FRC 2910 (40 A) and 7415 (37.5 A) on MK5n with Kraken X60s.
+                .withSupplyCurrentLimit(Amps.of(40))
                 .withSupplyCurrentLimitEnable(true)
         );
     private static final TalonFXConfiguration steerInitialConfigs = new TalonFXConfiguration()
@@ -75,6 +80,10 @@ public class TunerConstants {
                 // stator current limit to help avoid brownouts without impacting performance.
                 .withStatorCurrentLimit(Amps.of(60))
                 .withStatorCurrentLimitEnable(true)
+                // Supply limit to soften battery dips when all four steer motors snap at once
+                // (same as FRC 7415's MK5n / Kraken X44 setup).
+                .withSupplyCurrentLimit(Amps.of(35))
+                .withSupplyCurrentLimitEnable(true)
         );
     private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
     // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs
